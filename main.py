@@ -1,19 +1,53 @@
-from threading import Thread
+import threading
+import time
+import uvicorn
 
-from thread1 import task1
-from thread2 import task2
-from thread3 import task3
+from api import app
+from thread1 import trigger_machine as trigger_thread1
+from thread2 import trigger_machine as trigger_thread2
+from thread3 import trigger_machine as trigger_thread3
 
 
-thread1 = Thread(target=task1)
-thread2 = Thread(target=task2)
-thread3 = Thread(target=task3)
+def start_api():
+    uvicorn.run(
+        app,
+        host="127.0.0.1",
+        port=5000
+    )
 
-thread1.start()
-thread2.start()
-thread3.start()
 
-thread1.join()
-thread2.join()
-thread3.join()
+def run_thread1():
+    trigger_thread1(1)
 
+
+def run_thread2():
+    trigger_thread2(2)
+
+
+def run_thread3():
+    trigger_thread3(3)
+
+
+if __name__ == "__main__":
+
+    # Start API
+    api_thread = threading.Thread(
+        target=start_api,
+        daemon=True
+    )
+    api_thread.start()
+
+    time.sleep(1)
+
+    # Start 3 threads
+    t1 = threading.Thread(target=run_thread1)
+    t2 = threading.Thread(target=run_thread2)
+    t3 = threading.Thread(target=run_thread3)
+
+    t1.start()
+    t2.start()
+    t3.start()
+
+    t1.join()
+    t2.join()
+    t3.join()  
